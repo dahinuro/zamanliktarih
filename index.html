@@ -39,7 +39,6 @@
     .date {
       font-size: 1.6rem;
       margin-bottom: 30px;
-      letter-spacing: 1px;
     }
 
     .timeline {
@@ -61,26 +60,15 @@
       background: rgba(255,255,255,0.08);
     }
 
-    .event-title {
-      font-size: 1.15rem;
-    }
-
     .event-detail {
       margin-top: 12px;
       font-size: 0.95rem;
-      line-height: 1.6;
       display: none;
       opacity: 0.85;
     }
 
     .event.open .event-detail {
       display: block;
-      animation: fadeIn .4s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     footer {
@@ -89,3 +77,51 @@
       font-size: 0.85rem;
     }
   </style>
+</head>
+
+<body>
+  <div class="page">
+    <h1>Zamantarlık</h1>
+    <div class="subtitle">Açılmayı bekleyen anların anahtarlığı</div>
+
+    <div class="date" id="today"></div>
+    <div class="timeline" id="timeline"></div>
+
+    <footer>NRAtölye • Zamantarlık</footer>
+  </div>
+
+  <script>
+    const today = new Date();
+    const key =
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(today.getDate()).padStart(2, '0');
+
+    document.getElementById('today').innerText =
+      today.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    fetch('events.json')
+      .then(res => res.json())
+      .then(data => {
+        const list = data[key];
+        const timeline = document.getElementById('timeline');
+
+        if (!list) {
+          timeline.innerHTML = '<div class="event">Bugün için kayıtlı bir olay yok.</div>';
+          return;
+        }
+
+        list.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'event';
+          div.innerHTML = `
+            <div class="event-title">${item.title}</div>
+            <div class="event-detail">${item.detail}</div>
+          `;
+          div.onclick = () => div.classList.toggle('open');
+          timeline.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
